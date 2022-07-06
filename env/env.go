@@ -51,29 +51,44 @@ func getFileContent(filePath string) (string, error)	{
 func retrieveValidLinesFromContent(content string) ([]string, error)	{
     validLines := []string{}
     var bufferString string = ""
+    // If '#' rune is encountered it should skip to the next end of line
+    var skipping bool = false
     
     for _, rune := range content	{
 	// Check for an enter or an comment
-	if rune == '\n' || rune == '#'	{
+	if rune == '\n'	{
+	    skipping = false
 	    // Match bufferString to env syntax of "[key]=[value]"
-	    matched, err := regexp.Match("/^\\w+=\\w+/", []byte(bufferString)) 
+	    matched, err := stringIsValidEnvSyntax(bufferString)
 
-	    if matched == false	{
-		continue
+	    if err != nil   {
+		return nil, err
 	    }
 
-	    if err != nil	{
-		return nil, err
+	    if !matched	{
+		bufferString = ""
+		continue
 	    }
 
 	    validLines = append(validLines, bufferString)
 	    bufferString = ""
-	} else	{
+	} else if rune == '#'	{
+	    skipping = true
+	} else if !skipping	{
 	    bufferString = bufferString + string(rune)
 	}
     }
 
+    // Add what is left in the buffer it it matches the regex
+    if matched , err := stringIsValidEnvSyntax(bufferString); err == nil && matched {
+	validLines = append(validLines, bufferString)
+    }
+
     return validLines, nil
+}
+
+func stringIsValidEnvSyntax(stringToTest string) (bool, error)	{
+    return regexp.Match("^\\w+=\\w+", []byte(stringToTest))
 }
 
 func parseFileContentAndRegisterVars(content []string)	{
