@@ -6,7 +6,7 @@ import (
 )
 
 func RegisterEnv(filePaths ...string) error    {
-    filePaths = validateAmountOfPathsReturnDefaultIfNone(filePaths)
+    filePaths = returnDefaultRouteIfNonePassed(filePaths)
 
     for _, path := range filePaths  {
 	if err := checkIfFileExists(path); err != nil	{
@@ -26,7 +26,7 @@ func RegisterEnv(filePaths ...string) error    {
     return nil
 }
 
-func validateAmountOfPathsReturnDefaultIfNone(filePaths []string) []string   {
+func returnDefaultRouteIfNonePassed(filePaths []string) []string   {
     if len(filePaths) <= 0  {
 	return []string { ".env" }
     }
@@ -58,7 +58,6 @@ func retrieveValidLinesFromContent(content string) ([]string, error)	{
 	// Check for an enter or an comment
 	if rune == '\n'	{
 	    skipping = false
-	    // Match bufferString to env syntax of "[key]=[value]"
 	    matched, err := stringIsValidEnvSyntax(bufferString)
 
 	    if err != nil   {
@@ -88,6 +87,7 @@ func retrieveValidLinesFromContent(content string) ([]string, error)	{
 }
 
 func stringIsValidEnvSyntax(stringToTest string) (bool, error)	{
+    // Match string to env syntax of "[key]=[value]"
     return regexp.Match("^\\w+=\\w+", []byte(stringToTest))
 }
 
