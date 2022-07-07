@@ -21,7 +21,7 @@ func RegisterEnv(filePaths ...string) error    {
 
 	validLines, err := retrieveValidLinesFromContent(fileContent)
 
-	parseFileContentAndRegisterVars(validLines)
+	parseValidLinesAndRegisterVars(validLines)
     }
 
     return nil
@@ -92,7 +92,7 @@ func stringIsValidEnvSyntax(stringToTest string) (bool, error)	{
     return regexp.Match("^\\w+=\\w+", []byte(stringToTest))
 }
 
-func parseFileContentAndRegisterVars(content []string) (error)	{
+func parseValidLinesAndRegisterVars(content []string) (error)	{
     for _, line := range content    {
 	equalsRuneIndex := strings.IndexRune(line, '=')
 
