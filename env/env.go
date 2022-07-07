@@ -1,8 +1,9 @@
 package env
 
 import (
-    "os"
-    "regexp"
+	"os"
+	"regexp"
+	"strings"
 )
 
 func RegisterEnv(filePaths ...string) error    {
@@ -91,6 +92,17 @@ func stringIsValidEnvSyntax(stringToTest string) (bool, error)	{
     return regexp.Match("^\\w+=\\w+", []byte(stringToTest))
 }
 
-func parseFileContentAndRegisterVars(content []string)	{
+func parseFileContentAndRegisterVars(content []string) (error)	{
+    for _, line := range content    {
+	equalsRuneIndex := strings.IndexRune(line, '=')
 
+	// Retrieve the key value pair from the line
+	keyName := line[0:equalsRuneIndex]
+	value := line[equalsRuneIndex+1:]
+
+	if err := os.Setenv(keyName, value); err != nil	    {
+	    return err
+	}
+    }
+    return nil
 }
